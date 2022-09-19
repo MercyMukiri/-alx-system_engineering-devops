@@ -1,4 +1,5 @@
 !/usr/bin/env bash
 # Uses ssh to connect to the alx server
+# using the private key ~/.ssh/school with the user ubuntu.
 
-ssh -i ~/.ssh/school ubuntu@35.231.57.129
+ssh -i ~/.ssh/school ubuntu@3.231.212.152
