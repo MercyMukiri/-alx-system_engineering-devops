@@ -29,7 +29,7 @@ def recurse(subreddit, hot_list=[], count=0, after=None):
 
     if not res.json().get("data").get("after"):
         return new_hot_list
-    
+
     return recurse(subreddit, new_hot_list,
                    res.json().get("data").get("count"),
                    res.json().get("data").get("after"))
