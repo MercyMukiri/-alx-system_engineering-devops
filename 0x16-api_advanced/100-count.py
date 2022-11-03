@@ -6,45 +6,45 @@ given subreddit
 import requests
 
 
-def count_words(subreddit, word_list, word_count={}, after=None):
+def count_words(subreddit, word_list, word_count=[], after=None):
     """
     Recursively queries Reddit API and returns a list of titles of
     all hot articles for a given subreddit
     """
-    url = f'https://www.reddit.com/r/{subreddit}/hot.json'
 
-    try:
-        res = requests(url,
-                       params={'after': after},
-                       headers={'User-agent': 'linux:0x16.api.advanced'},
-                       allow_redirects=False).json()
+    user_agent = {'User-agent': 'test45'}
+    posts = requests.get('http://www.reddit.com/r/{}/hot.json?after={}'
+                         .format(subreddit, after), headers=user_agent)
 
-        hot_list = [child.get("data").get("title")
-                    for child in res.get("data").get("children")]
+    if after is None:
+        word_list = [word.lower() for word in word_list]
 
-        if not hot_list:
-            return None
+    if posts.status_code == 200:
+        posts = posts.json()['data']
+        aft = posts['after']
+        posts = posts['children']
 
-        word_list = list(dict.fromkeys(word_list))
+        for post in posts:
+            title = post['data']['title'].lower()
 
-        if word_count == {}:
-            word_count = {word: 0 for word in word_list}
+            for word in title.split(' '):
+                if word in word_list:
+                    word_count.append(word)
 
-        for title in hot_list:
-            split_words = title.split(' ')
-            for word in word_list:
-                for s_word in split_words:
-                    if s_word.lower() == word.lower():
-                        word_count[word] += 1
-
-        if not res.get("data").get("after"):
-            sorted_counts = sorted(word_count.items(), key=lambda kv: kv[0])
-            sorted_counts = sorted(word_count.items(),
-                                   key=lambda kv: kv[1], reverse=True)
-            [print(f"{k}: {v}") for k, v in sorted_counts if v != 0]
+        if aft is not None:
+            count_words(subreddit, word_list, word_count, aft)
         else:
-            return count_words(subreddit, word_list, word_count,
-                               res.get("data").get("after"))
+            result = {}
 
-    except Exception:
-        return None
+            for word in word_count:
+                if word.lower() in result.keys():
+                    result[word.lower()] += 1
+                else:
+                    result[word.lower()] = 1
+
+            for key, value in sorted(result.items(), key=lambda item: item[1],
+                                     reverse=True):
+                print('{}: {}'.format(key, value))
+
+    else:
+        return
