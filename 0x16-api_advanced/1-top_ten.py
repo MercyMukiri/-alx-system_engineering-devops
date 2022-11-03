@@ -23,6 +23,11 @@ def top_ten(subreddit):
 
     if res.status_code == 400:
         print('None')
+        return
+
+    child = res.json().get("data", {}).get("children", None)
+    if child is None or (len(child) > 0 and child[0].get('kind') != 't3'):
+        print('None')
     else:
-        for child in res.json().get("data").get("children"):
-            print(child.get('data').get('title'))
+        for post in child:
+            print(post.get('data', {}).get('title', None))
