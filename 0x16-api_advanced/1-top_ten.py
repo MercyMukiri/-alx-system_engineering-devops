@@ -12,9 +12,15 @@ def top_ten(subreddit):
     of the first 10 hot posts listed for a given subreddit.
     """
 
+    if subreddit is None or type(subreddit) is not str:
+        print('None')
+
     res = requests.get("https://www.reddit.com/r/{}/hot.json?limit=10"
-                       .format(subreddit))
-    if res.status_code >= 300:
+                       .format(subreddit),
+                       headers={'User-agent': 'custom'},
+                       allow_redirects=False)
+
+    if res.status_code == 400:
         print('None')
     else:
         for child in res.json().get("data").get("children"):
